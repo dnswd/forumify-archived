@@ -1,6 +1,7 @@
+const http = require('http');
 const PC = require('@prisma/client').PrismaClient
-const prisma = new PC()
 const { Client, Intents } = require("discord.js");
+const prisma = new PC()
 const client = new Client({ 
   intents: [
     Intents.FLAGS.GUILDS,
@@ -37,8 +38,16 @@ async function ask(msg, args) {
     return
   }
 
+  // resolve atatchments
+  const attachments = []
+  msg.attachments.forEach((v, k) => { attachments.push(v.url) })
+  
+
   const channel = await client.channels.fetch(result.channelId)
-  channel.send(args.slice(2).join(" "))
+  channel.send({
+    content: args.slice(2).join(" "),
+    files: attachments
+  })
 
 }
 
@@ -120,7 +129,6 @@ async function main() {
     console.log("I am ready!");
   });
 
-  
   client.on("messageCreate", async (msg) => {
     if (msg.channel.isThread()) return
     const cmd = msg.content.split(" ")
@@ -143,20 +151,27 @@ async function main() {
         break
       default:
         if (!msg.guildId) return
-        console.log(msg)
         if (msg.type != 'THREAD_CREATED') {
           msg.react('⬇')
           msg.react('⬆')
           await msg.startThread({
             name: msg.content.substring(0, 100),
             autoArchiveDuration: 60*24
-          }).catch(e => console.log(e))
+          }).catch(e => console.error(e))
         }
     }
   });
 
   client.login(process.env.DC_TOKEN);
 }
+
+const requestListener = function (req, res) {
+  res.writeHead(200);
+  res.end('Pong!');
+}
+
+const server = http.createServer(requestListener);
+server.listen(process.env.PORT || 8080);
 
 main()
   .catch(e => console.error(e))

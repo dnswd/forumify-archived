@@ -151,7 +151,11 @@ async function main() {
         break
       default:
         if (!msg.guildId) return
-        if (msg.type != 'THREAD_CREATED') {
+        const result = await prisma.channels.findUnique({
+          where: {
+            channelId: msg.channelId
+        }})
+        if (msg.type != 'THREAD_CREATED' && result) {
           msg.react('⬇')
           msg.react('⬆')
           await msg.startThread({

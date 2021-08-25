@@ -19,6 +19,29 @@ const client = new Client({
 }); 
 require('dotenv').config()
 
+async function ask(msg, args) {
+  if (args.length < 2) {
+    msg.channel.send("Missing parameter alias: `/anon alias`")
+    return
+  }
+
+  // resolve alias
+  const result = await prisma.channels.findUnique({
+    where: {
+      alias: args[1]
+    }
+  })
+
+  if (!result) {
+    msg.channel.send("Unrecognized forum identifier")
+    return
+  }
+
+  const channel = await client.channels.fetch(result.channelId)
+  channel.send(args.slice(2).join(" "))
+
+}
+
 async function disable_anon(msg) {
   try {
     await prisma.channels.update({
@@ -99,6 +122,7 @@ async function main() {
 
   
   client.on("messageCreate", async (msg) => {
+    if (msg.channel.isThread()) return
     const cmd = msg.content.split(" ")
 
     switch (cmd[0]) {
@@ -115,8 +139,19 @@ async function main() {
         disable_anon(msg)
         break
       case '/ask':
-        // disable_anon(msg)
+        ask(msg, cmd)
         break
+      default:
+        if (!msg.guildId) return
+        console.log(msg)
+        if (msg.type != 'THREAD_CREATED') {
+          msg.react('⬇')
+          msg.react('⬆')
+          await msg.startThread({
+            name: msg.content.substring(0, 100),
+            autoArchiveDuration: 60*24
+          }).catch(e => console.log(e))
+        }
     }
   });
 

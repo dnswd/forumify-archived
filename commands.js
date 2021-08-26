@@ -34,15 +34,15 @@ const COMMANDS = {
 
 function execute(msg) {
   const rawArgs = msg.content.split(" ")
+  console.log('INVOKED:' + rawArgs)
   let cmd = COMMANDS[rawArgs[0]]
-
+  
   if (!cmd) cmd = COMMANDS.DEFAULT
   if (cmd.dmOnly && msg.guildId) return
   if (cmd.channelOnly && !msg.guildId) return
   if (cmd.protected && 
-      msg.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS))
-      return 
-
+    !msg.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)) return 
+    
   cmd.handler.call(this, msg, rawArgs)
 }
 

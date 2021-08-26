@@ -26,11 +26,13 @@ async function ask(msg, args) {
 
   const channel = await msg.client.channels.fetch(result.channelId)
   // Fasilkom compliance
-  console.log(`Anon message sent to ${channel.guild.name}/${channel.name}: ` + msg.content)
+  try { 
   channel.send({
     content: args.slice(2).join(" "),
     files: attachments
   })
+  console.log(`Anon message sent to ${channel.guild.name}/${channel.name}: ` + msg.content)
+  } catch (e) { console.error(e) }
 
 }
 

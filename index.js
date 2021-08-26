@@ -21,9 +21,43 @@ const client = new Client({
 }); 
 require('dotenv').config()
 
+function welcome(member) {
+  const jokes = [
+    'Visit pamulang',
+    'Nonton star trek',
+    'SORRY JIR!',
+    'Establish Internet in Indonesia',
+    'Lulus jadi kambing 🐐',
+    'Kambing pun bisa dapet C 🐐',
+    'Keluar vim pake `:wq` bukan `alt+F4` ya',
+    'Pointer itu bukan black magic',
+    'GNU/Linux bukan Linux',
+    'POK enggak begitu kepake kok',
+    'less lebih baik dari pada more',
+    'btw i use arch',
+    'kalo takut vim ada nano',
+  ]
+
+  return `***Welcome to ${member.guild.name} ~***
+We're thrilled to have you here!~
+
+Please kindly:
+1. Read the *server rules*
+2. Check if there's additional step after joining this server
+3. Learn how to utilize discord
+4. ${jokes[Math.floor(Math.random() * jokes.length)]}
+
+Best of luck this semester 🍀
+Jolan Tru~
+`
+}
+
 async function main() {
   client.on("messageCreate", execute);
   client.on("error", (e) => console.error(e))
+  client.on("guildMemberAdd", (member) => {
+    member.send(welcome(member))
+  })
   client.on("ready", () => {
     console.log("I am ready!");
   });
